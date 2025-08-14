@@ -8,9 +8,9 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Create public directory and copy index.html
+# Create public directory and index.html
 RUN mkdir -p public
-COPY public/index.html ./public/
+RUN echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Task Management System</title></head><body><div id="root"></div></body></html>' > public/index.html
 
 # Copy source files
 COPY src/ ./src/
