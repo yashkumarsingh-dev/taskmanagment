@@ -115,72 +115,64 @@ const Dashboard = () => {
         <div className="absolute bottom-1/4 left-1/4 w-20 h-20 bg-red-500/5 rounded-full blur-2xl floating-delayed"></div>
       </div>
 
-      <div className="relative z-10 p-8 max-w-7xl mx-auto">
+      <div className="relative z-10 dashboard-container">
         {/* Enhanced Header */}
-        <div className="mb-12 fade-in">
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-            <div className="space-y-4">
-              <div className="flex items-center space-x-4">
-                <div className="w-16 h-16 rounded-3xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center shadow-2xl">
-                  <Activity className="w-8 h-8 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-5xl font-bold text-white mb-2">
-                    Dashboard
-                  </h1>
-                  <p className="text-xl text-gray-400">
-                    Welcome back,{" "}
-                    <span className="text-gradient font-semibold">
-                      {user?.email?.split("@")[0] || "User"}
-                    </span>
-                    !
-                  </p>
-                </div>
-              </div>
+        <div className="dashboard-header fade-in">
+          <div className="header-content">
+            <div className="header-icon">
+              <Activity className="w-8 h-8 text-white" />
             </div>
-            <Link
-              to="/tasks/new"
-              className="btn-primary flex items-center space-x-3 group px-8 py-4 text-lg">
-              <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
-              <span>New Task</span>
-            </Link>
+            <div className="header-text">
+              <h1>Dashboard</h1>
+              <p>
+                Welcome back,{" "}
+                <span className="text-gradient font-semibold">
+                  {user?.email?.split("@")[0] || "User"}
+                </span>
+                !
+              </p>
+            </div>
           </div>
+          <Link
+            to="/tasks/new"
+            className="btn-large flex items-center space-x-3 group">
+            <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+            <span>New Task</span>
+          </Link>
         </div>
 
         {/* Enhanced Stats Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 mb-12">
+        <div className="stats-grid">
           {stats.map((stat, index) => {
             const Icon = stat.icon;
             return (
               <div
                 key={stat.title}
-                className={`card glass-hover fade-in-up group`}
+                className="card-stats glass-hover fade-in-up group"
                 style={{ animationDelay: `${index * 0.1}s` }}>
-                <div className="flex flex-col items-center text-center space-y-4">
+                <div
+                  className={`w-16 h-16 rounded-2xl flex items-center justify-center ${stat.bgColor} ${stat.borderColor} border-2 group-hover:scale-110 transition-transform duration-300`}
+                  style={{
+                    background: `linear-gradient(135deg, ${stat.gradient})`,
+                  }}>
+                  <Icon
+                    className={`w-8 h-8 ${stat.color} group-hover:scale-110 transition-transform duration-300`}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-4xl font-bold text-white group-hover:text-gradient transition-all duration-300">
+                    {stat.value}
+                  </p>
+                  <p className="text-sm font-medium text-gray-400">
+                    {stat.title}
+                  </p>
+                </div>
+                <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
                   <div
-                    className={`w-16 h-16 rounded-2xl flex items-center justify-center ${stat.bgColor} ${stat.borderColor} border-2 group-hover:scale-110 transition-transform duration-300`}
+                    className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-1000"
                     style={{
-                      background: `linear-gradient(135deg, ${stat.gradient})`,
-                    }}>
-                    <Icon
-                      className={`w-8 h-8 ${stat.color} group-hover:scale-110 transition-transform duration-300`}
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <p className="text-4xl font-bold text-white group-hover:text-gradient transition-all duration-300">
-                      {stat.value}
-                    </p>
-                    <p className="text-sm font-medium text-gray-400">
-                      {stat.title}
-                    </p>
-                  </div>
-                  <div className="w-full h-1 bg-gray-800 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-gradient-to-r from-green-500 to-green-600 rounded-full transition-all duration-1000"
-                      style={{
-                        width: `${Math.min(parseInt(stat.value) * 10, 100)}%`,
-                      }}></div>
-                  </div>
+                      width: `${Math.min(parseInt(stat.value) * 10, 100)}%`,
+                    }}></div>
                 </div>
               </div>
             );
@@ -188,51 +180,47 @@ const Dashboard = () => {
         </div>
 
         {/* Enhanced Main Content Grid */}
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+        <div className="main-content-grid">
           {/* Enhanced Recent Tasks Section - Takes 2 columns */}
-          <div className="xl:col-span-2">
-            <div
-              className="card glass fade-in-up h-full"
-              style={{ animationDelay: "0.6s" }}>
-              <div className="flex items-center justify-between mb-8">
-                <div className="flex items-center space-x-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
-                    <CheckSquare className="w-6 h-6 text-white" />
-                  </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-white">
-                      Recent Tasks
-                    </h2>
-                    <p className="text-gray-400">Your latest task activities</p>
-                  </div>
+          <div
+            className="card-main glass fade-in-up"
+            style={{ animationDelay: "0.6s" }}>
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center">
+                  <CheckSquare className="w-6 h-6 text-white" />
                 </div>
-                <Link
-                  to="/tasks"
-                  className="text-green-400 hover:text-green-300 font-medium transition-colors duration-200 flex items-center space-x-2 group">
-                  <span>View all tasks</span>
-                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
-                </Link>
+                <div>
+                  <h2 className="text-2xl font-bold text-white">
+                    Recent Tasks
+                  </h2>
+                  <p className="text-gray-400">Your latest task activities</p>
+                </div>
               </div>
+              <Link
+                to="/tasks"
+                className="text-green-400 hover:text-green-300 font-medium transition-colors duration-200 flex items-center space-x-2 group">
+                <span>View all tasks</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+              </Link>
+            </div>
 
-              {/* Enhanced Empty State */}
-              <div className="text-center py-20">
-                <div className="w-32 h-32 mx-auto mb-8 rounded-3xl bg-gradient-to-br from-gray-800/50 to-gray-700/50 flex items-center justify-center floating">
-                  <CheckSquare className="w-16 h-16 text-gray-400" />
-                </div>
-                <h3 className="text-2xl font-semibold text-gray-300 mb-4">
-                  No tasks found
-                </h3>
-                <p className="text-gray-400 mb-10 max-w-md mx-auto text-lg">
-                  Get started by creating your first task and begin organizing
-                  your workflow
-                </p>
-                <Link
-                  to="/tasks/new"
-                  className="btn-primary inline-flex items-center space-x-3 group px-8 py-4 text-lg">
-                  <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
-                  <span>Create Task</span>
-                </Link>
+            {/* Enhanced Empty State */}
+            <div className="empty-state">
+              <div className="empty-state-icon">
+                <CheckSquare className="w-16 h-16 text-gray-400" />
               </div>
+              <h3>No tasks found</h3>
+              <p>
+                Get started by creating your first task and begin organizing
+                your workflow
+              </p>
+              <Link
+                to="/tasks/new"
+                className="btn-large inline-flex items-center space-x-3 group">
+                <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+                <span>Create Task</span>
+              </Link>
             </div>
           </div>
 
@@ -240,7 +228,7 @@ const Dashboard = () => {
           <div className="space-y-8">
             {/* Enhanced Quick Actions */}
             <div
-              className="card glass-hover fade-in-up"
+              className="card-sidebar glass-hover fade-in-up"
               style={{ animationDelay: "0.7s" }}>
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
@@ -278,7 +266,7 @@ const Dashboard = () => {
 
             {/* Enhanced System Status */}
             <div
-              className="card glass-hover fade-in-up"
+              className="card-sidebar glass-hover fade-in-up"
               style={{ animationDelay: "0.8s" }}>
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
