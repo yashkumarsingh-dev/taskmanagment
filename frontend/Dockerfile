@@ -6,6 +6,9 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
+# Install dependencies
+RUN npm install
+
 # Copy source code (including public directory)
 COPY . .
 
@@ -17,5 +20,5 @@ ENV CI=false
 ENV WDS_SOCKET_HOST=0.0.0.0
 ENV WDS_SOCKET_PORT=3000
 
-# Default command (will be overridden by docker-compose)
+# Start the application
 CMD ["npm", "start"]

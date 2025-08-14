@@ -53,14 +53,11 @@ services:
       CI: false
     ports:
       - "3000:3000"
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
     depends_on:
       - backend
     networks:
       - task_management_network
-    command: sh -c "npm install && npm start"
+    command: npm start
 
 volumes:
   postgres_data:
