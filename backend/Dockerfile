@@ -6,8 +6,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies (including dev dependencies for nodemon)
-RUN npm ci
+# Install ALL dependencies (including dev dependencies for nodemon)
+RUN npm install
 
 # Copy source code
 COPY . .
@@ -19,4 +19,4 @@ RUN mkdir -p uploads
 EXPOSE 5000
 
 # Start the application
-CMD ["npm", "start"]
+CMD ["npm", "run", "dev"]
