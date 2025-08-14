@@ -1,365 +1,333 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  fetchTasks,
-  setFilters,
-  clearFilters,
-} from "../store/slices/taskSlice";
 import { Link } from "react-router-dom";
+import { fetchTasks } from "../store/slices/taskSlice";
 import {
+  Plus,
   Search,
   Filter,
   SortAsc,
   SortDesc,
+  CheckCircle,
+  Clock,
+  AlertTriangle,
+  Calendar,
   Eye,
   Edit,
   Trash2,
-  Plus,
+  Download,
 } from "lucide-react";
-import { format } from "date-fns";
 
 const TaskList = () => {
   const dispatch = useDispatch();
-  const { tasks, loading, pagination, filters } = useSelector(
-    (state) => state.tasks
-  );
-  const [searchTerm, setSearchTerm] = useState(filters.search || "");
+  const { tasks, loading } = useSelector((state) => state.tasks);
+  const { user } = useSelector((state) => state.auth);
+
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [priorityFilter, setPriorityFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("created_at");
+  const [sortOrder, setSortOrder] = useState("desc");
 
   useEffect(() => {
-    dispatch(fetchTasks({ ...filters, page: 1 }));
-  }, [dispatch, filters]);
+    dispatch(fetchTasks());
+  }, [dispatch]);
 
-  const handleSearch = (e) => {
-    e.preventDefault();
-    dispatch(setFilters({ search: searchTerm, page: 1 }));
-  };
+  const filteredTasks = tasks
+    .filter((task) => {
+      const matchesSearch =
+        task.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        task.description.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesStatus =
+        statusFilter === "all" || task.status === statusFilter;
+      const matchesPriority =
+        priorityFilter === "all" || task.priority === priorityFilter;
+      return matchesSearch && matchesStatus && matchesPriority;
+    })
+    .sort((a, b) => {
+      let aValue = a[sortBy];
+      let bValue = b[sortBy];
 
-  const handleFilterChange = (key, value) => {
-    dispatch(setFilters({ [key]: value, page: 1 }));
-  };
+      if (sortBy === "due_date" || sortBy === "created_at") {
+        aValue = new Date(aValue || 0);
+        bValue = new Date(bValue || 0);
+      }
 
-  const handleSort = (sortBy) => {
-    const sortOrder =
-      filters.sortBy === sortBy && filters.sortOrder === "asc" ? "desc" : "asc";
-    dispatch(setFilters({ sortBy, sortOrder, page: 1 }));
-  };
-
-  const handlePageChange = (page) => {
-    dispatch(setFilters({ page }));
-  };
+      if (sortOrder === "asc") {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
 
   const getStatusIcon = (status) => {
     switch (status) {
       case "completed":
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-            Completed
-          </span>
-        );
+        return <CheckCircle className="w-5 h-5 text-green-400" />;
       case "in_progress":
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-            In Progress
-          </span>
-        );
+        return <Clock className="w-5 h-5 text-blue-400" />;
       default:
-        return (
-          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
-            Pending
-          </span>
-        );
+        return <AlertTriangle className="w-5 h-5 text-yellow-400" />;
     }
   };
 
-  const getPriorityColor = (priority) => {
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case "completed":
+        return "badge-completed";
+      case "in_progress":
+        return "badge-progress";
+      default:
+        return "badge-pending";
+    }
+  };
+
+  const getPriorityBadge = (priority) => {
     switch (priority) {
       case "high":
-        return "bg-red-100 text-red-800";
+        return "badge-high";
       case "medium":
-        return "bg-yellow-100 text-yellow-800";
+        return "badge-progress";
       default:
-        return "bg-green-100 text-green-800";
+        return "badge-completed";
     }
   };
 
-  const SortButton = ({ field, currentSortBy, currentSortOrder, children }) => (
-    <button
-      onClick={() => handleSort(field)}
-      className="flex items-center space-x-1 text-gray-500 hover:text-gray-700">
-      <span>{children}</span>
-      {currentSortBy === field &&
-        (currentSortOrder === "asc" ? (
-          <SortAsc className="h-4 w-4" />
-        ) : (
-          <SortDesc className="h-4 w-4" />
-        ))}
-    </button>
-  );
+  const formatDate = (dateString) => {
+    if (!dateString) return "No due date";
+    return new Date(dateString).toLocaleDateString();
+  };
+
+  const isOverdue = (dueDate, status) => {
+    if (!dueDate || status === "completed") return false;
+    return new Date(dueDate) < new Date();
+  };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="animate-pulse space-y-6">
+            <div className="h-8 bg-gray-800 rounded-lg w-1/4"></div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="card">
+                  <div className="h-4 bg-gray-800 rounded w-3/4 mb-4"></div>
+                  <div className="h-3 bg-gray-800 rounded w-1/2 mb-2"></div>
+                  <div className="h-3 bg-gray-800 rounded w-1/4"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="sm:flex sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Tasks</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Manage and track your tasks
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 p-6">
+      <div className="max-w-7xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">Tasks</h1>
+              <p className="text-gray-400">
+                Manage and track your tasks efficiently
+              </p>
+            </div>
+            <Link
+              to="/tasks/new"
+              className="btn-primary mt-4 sm:mt-0 flex items-center space-x-2">
+              <Plus className="w-5 h-5" />
+              <span>New Task</span>
+            </Link>
+          </div>
         </div>
-        <div className="mt-4 sm:mt-0">
-          <Link to="/tasks/new" className="btn-primary">
-            <Plus className="h-4 w-4 mr-2" />
-            New Task
-          </Link>
-        </div>
-      </div>
 
-      {/* Filters */}
-      <div className="card">
-        <div className="card-body">
-          <form onSubmit={handleSearch} className="space-y-4">
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {/* Search */}
-              <div>
-                <label
-                  htmlFor="search"
-                  className="block text-sm font-medium text-gray-700">
-                  Search
-                </label>
-                <div className="mt-1 relative">
-                  <input
-                    type="text"
-                    id="search"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="input pl-10"
-                    placeholder="Search tasks..."
-                  />
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        {/* Filters and Search */}
+        <div
+          className="card glass mb-6 fade-in-up"
+          style={{ animationDelay: "0.1s" }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Search */}
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search tasks..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="input-field pl-10"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="input-field">
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="completed">Completed</option>
+            </select>
+
+            {/* Priority Filter */}
+            <select
+              value={priorityFilter}
+              onChange={(e) => setPriorityFilter(e.target.value)}
+              className="input-field">
+              <option value="all">All Priority</option>
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+
+            {/* Sort */}
+            <div className="flex space-x-2">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="input-field flex-1">
+                <option value="created_at">Created Date</option>
+                <option value="due_date">Due Date</option>
+                <option value="title">Title</option>
+                <option value="priority">Priority</option>
+              </select>
+              <button
+                onClick={() =>
+                  setSortOrder(sortOrder === "asc" ? "desc" : "asc")
+                }
+                className="btn-secondary px-3">
+                {sortOrder === "asc" ? (
+                  <SortAsc className="w-5 h-5" />
+                ) : (
+                  <SortDesc className="w-5 h-5" />
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Tasks Grid */}
+        {filteredTasks.length === 0 ? (
+          <div
+            className="card glass text-center py-12 fade-in-up"
+            style={{ animationDelay: "0.2s" }}>
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-800/50 flex items-center justify-center">
+              <CheckCircle className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-300 mb-2">
+              No tasks found
+            </h3>
+            <p className="text-gray-400 mb-6">
+              {searchTerm || statusFilter !== "all" || priorityFilter !== "all"
+                ? "Try adjusting your filters"
+                : "Get started by creating your first task"}
+            </p>
+            <Link
+              to="/tasks/new"
+              className="btn-primary inline-flex items-center space-x-2">
+              <Plus className="w-5 h-5" />
+              <span>Create Task</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredTasks.map((task, index) => (
+              <div
+                key={task.id}
+                className={`card glass-hover fade-in-up`}
+                style={{ animationDelay: `${0.2 + index * 0.05}s` }}>
+                {/* Task Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center space-x-2">
+                    {getStatusIcon(task.status)}
+                    <div>
+                      <span className={`badge ${getStatusBadge(task.status)}`}>
+                        {task.status.replace("_", " ")}
+                      </span>
+                      <span
+                        className={`badge ${getPriorityBadge(
+                          task.priority
+                        )} ml-2`}>
+                        {task.priority}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Link
+                      to={`/tasks/${task.id}`}
+                      className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700/50 transition-colors">
+                      <Eye className="w-4 h-4" />
+                    </Link>
+                    <Link
+                      to={`/tasks/${task.id}/edit`}
+                      className="p-2 rounded-lg text-gray-400 hover:text-blue-400 hover:bg-blue-500/10 transition-colors">
+                      <Edit className="w-4 h-4" />
+                    </Link>
+                  </div>
+                </div>
+
+                {/* Task Content */}
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold text-white mb-2 line-clamp-2">
+                    {task.title}
+                  </h3>
+                  <p className="text-gray-400 text-sm line-clamp-3">
+                    {task.description}
+                  </p>
+                </div>
+
+                {/* Task Meta */}
+                <div className="space-y-2 mb-4">
+                  <div className="flex items-center text-sm text-gray-400">
+                    <Calendar className="w-4 h-4 mr-2" />
+                    <span
+                      className={
+                        isOverdue(task.due_date, task.status)
+                          ? "text-red-400"
+                          : ""
+                      }>
+                      {formatDate(task.due_date)}
+                      {isOverdue(task.due_date, task.status) && " (Overdue)"}
+                    </span>
+                  </div>
+                  {task.assigned_to && (
+                    <div className="text-sm text-gray-400">
+                      Assigned to: {task.assigned_to}
+                    </div>
+                  )}
+                </div>
+
+                {/* Attachments */}
+                {task.attachments && task.attachments.length > 0 && (
+                  <div className="mb-4">
+                    <div className="text-sm text-gray-400 mb-2">
+                      Attachments:
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {task.attachments.map((attachment, idx) => (
+                        <button
+                          key={idx}
+                          className="flex items-center space-x-1 px-2 py-1 rounded text-xs bg-gray-800/50 text-gray-300 hover:bg-gray-700/50 transition-colors">
+                          <Download className="w-3 h-3" />
+                          <span>{attachment.filename}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Created Date */}
+                <div className="text-xs text-gray-500">
+                  Created: {formatDate(task.created_at)}
                 </div>
               </div>
-
-              {/* Status Filter */}
-              <div>
-                <label
-                  htmlFor="status"
-                  className="block text-sm font-medium text-gray-700">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  value={filters.status}
-                  onChange={(e) => handleFilterChange("status", e.target.value)}
-                  className="input">
-                  <option value="">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="in_progress">In Progress</option>
-                  <option value="completed">Completed</option>
-                </select>
-              </div>
-
-              {/* Priority Filter */}
-              <div>
-                <label
-                  htmlFor="priority"
-                  className="block text-sm font-medium text-gray-700">
-                  Priority
-                </label>
-                <select
-                  id="priority"
-                  value={filters.priority}
-                  onChange={(e) =>
-                    handleFilterChange("priority", e.target.value)
-                  }
-                  className="input">
-                  <option value="">All Priorities</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-
-              {/* Sort */}
-              <div>
-                <label
-                  htmlFor="sortBy"
-                  className="block text-sm font-medium text-gray-700">
-                  Sort By
-                </label>
-                <select
-                  id="sortBy"
-                  value={filters.sortBy}
-                  onChange={(e) => handleFilterChange("sortBy", e.target.value)}
-                  className="input">
-                  <option value="created_at">Created Date</option>
-                  <option value="due_date">Due Date</option>
-                  <option value="priority">Priority</option>
-                  <option value="status">Status</option>
-                </select>
-              </div>
-            </div>
-
-            <div className="flex justify-between">
-              <button type="submit" className="btn-primary">
-                <Search className="h-4 w-4 mr-2" />
-                Search
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  dispatch(clearFilters());
-                  setSearchTerm("");
-                }}
-                className="btn-secondary">
-                <Filter className="h-4 w-4 mr-2" />
-                Clear Filters
-              </button>
-            </div>
-          </form>
-        </div>
-      </div>
-
-      {/* Task List */}
-      <div className="card">
-        <div className="card-body">
-          {tasks.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No tasks found</p>
-              <Link
-                to="/tasks/new"
-                className="mt-4 inline-flex items-center text-primary-600 hover:text-primary-500">
-                <Plus className="h-4 w-4 mr-2" />
-                Create your first task
-              </Link>
-            </div>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <SortButton field="title">Title</SortButton>
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <SortButton
-                        field="status"
-                        currentSortBy={filters.sortBy}
-                        currentSortOrder={filters.sortOrder}>
-                        Status
-                      </SortButton>
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <SortButton
-                        field="priority"
-                        currentSortBy={filters.sortBy}
-                        currentSortOrder={filters.sortOrder}>
-                        Priority
-                      </SortButton>
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      <SortButton
-                        field="due_date"
-                        currentSortBy={filters.sortBy}
-                        currentSortOrder={filters.sortOrder}>
-                        Due Date
-                      </SortButton>
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Assigned To
-                    </th>
-                    <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Actions
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {tasks.map((task) => (
-                    <tr key={task.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">
-                            {task.title}
-                          </div>
-                          {task.description && (
-                            <div className="text-sm text-gray-500 truncate max-w-xs">
-                              {task.description}
-                            </div>
-                          )}
-                        </div>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        {getStatusIcon(task.status)}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap">
-                        <span
-                          className={`badge ${getPriorityColor(
-                            task.priority
-                          )}`}>
-                          {task.priority}
-                        </span>
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {task.due_date
-                          ? format(new Date(task.due_date), "MMM dd, yyyy")
-                          : "-"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {task.assigned_to_email || "-"}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <div className="flex items-center justify-end space-x-2">
-                          <Link
-                            to={`/tasks/${task.id}`}
-                            className="text-primary-600 hover:text-primary-900">
-                            <Eye className="h-4 w-4" />
-                          </Link>
-                          <Link
-                            to={`/tasks/${task.id}/edit`}
-                            className="text-blue-600 hover:text-blue-900">
-                            <Edit className="h-4 w-4" />
-                          </Link>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-
-          {/* Pagination */}
-          {pagination.pages > 1 && (
-            <div className="mt-6 flex items-center justify-between">
-              <div className="text-sm text-gray-700">
-                Showing {(pagination.page - 1) * pagination.limit + 1} to{" "}
-                {Math.min(pagination.page * pagination.limit, pagination.total)}{" "}
-                of {pagination.total} results
-              </div>
-              <div className="flex space-x-2">
-                <button
-                  onClick={() => handlePageChange(pagination.page - 1)}
-                  disabled={pagination.page === 1}
-                  className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
-                  Previous
-                </button>
-                <button
-                  onClick={() => handlePageChange(pagination.page + 1)}
-                  disabled={pagination.page === pagination.pages}
-                  className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed">
-                  Next
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

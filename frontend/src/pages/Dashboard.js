@@ -1,272 +1,227 @@
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchTasks } from "../store/slices/taskSlice";
+import React from "react";
+import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import {
   CheckSquare,
   Clock,
+  TrendingUp,
   AlertTriangle,
+  Calendar,
   CheckCircle,
   Plus,
-  TrendingUp,
-  Users,
-  Calendar,
+  ArrowRight,
 } from "lucide-react";
-import { format } from "date-fns";
 
 const Dashboard = () => {
-  const dispatch = useDispatch();
-  const { tasks, loading } = useSelector((state) => state.tasks);
   const { user } = useSelector((state) => state.auth);
 
-  useEffect(() => {
-    dispatch(fetchTasks({ limit: 100 })); // Get all tasks for dashboard stats
-  }, [dispatch]);
-
-  const stats = {
-    total: tasks.length,
-    pending: tasks.filter((task) => task.status === "pending").length,
-    inProgress: tasks.filter((task) => task.status === "in_progress").length,
-    completed: tasks.filter((task) => task.status === "completed").length,
-    highPriority: tasks.filter((task) => task.priority === "high").length,
-    overdue: tasks.filter((task) => {
-      if (!task.due_date) return false;
-      return (
-        new Date(task.due_date) < new Date() && task.status !== "completed"
-      );
-    }).length,
-  };
-
-  const recentTasks = tasks
-    .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-    .slice(0, 5);
-
-  const getStatusIcon = (status) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case "in_progress":
-        return <Clock className="h-5 w-5 text-blue-500" />;
-      default:
-        return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-    }
-  };
-
-  const getPriorityColor = (priority) => {
-    switch (priority) {
-      case "high":
-        return "bg-red-100 text-red-800";
-      case "medium":
-        return "bg-yellow-100 text-yellow-800";
-      default:
-        return "bg-green-100 text-green-800";
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
-      </div>
-    );
-  }
+  // Mock data for demonstration
+  const stats = [
+    {
+      title: "Total Tasks",
+      value: "0",
+      icon: CheckSquare,
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10",
+      borderColor: "border-blue-500/20",
+    },
+    {
+      title: "Pending",
+      value: "0",
+      icon: Clock,
+      color: "text-yellow-400",
+      bgColor: "bg-yellow-500/10",
+      borderColor: "border-yellow-500/20",
+    },
+    {
+      title: "In Progress",
+      value: "0",
+      icon: TrendingUp,
+      color: "text-green-400",
+      bgColor: "bg-green-500/10",
+      borderColor: "border-green-500/20",
+    },
+    {
+      title: "High Priority",
+      value: "0",
+      icon: AlertTriangle,
+      color: "text-red-400",
+      bgColor: "bg-red-500/10",
+      borderColor: "border-red-500/20",
+    },
+    {
+      title: "Overdue",
+      value: "0",
+      icon: Calendar,
+      color: "text-orange-400",
+      bgColor: "bg-orange-500/10",
+      borderColor: "border-orange-500/20",
+    },
+    {
+      title: "Completed",
+      value: "0",
+      icon: CheckCircle,
+      color: "text-emerald-400",
+      bgColor: "bg-emerald-500/10",
+      borderColor: "border-emerald-500/20",
+    },
+  ];
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="sm:flex sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-          <p className="mt-1 text-sm text-gray-500">
-            Welcome back, {user?.email}
-          </p>
-        </div>
-        <div className="mt-4 sm:mt-0">
-          <Link to="/tasks/new" className="btn-primary">
-            <Plus className="h-4 w-4 mr-2" />
-            New Task
-          </Link>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%2310b981" fill-opacity="0.03"%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] opacity-30"></div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="card">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CheckSquare className="h-8 w-8 text-primary-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Total Tasks
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats.total}
-                  </dd>
-                </dl>
-              </div>
+      <div className="relative z-10 p-6">
+        {/* Header */}
+        <div className="mb-8 fade-in">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h1 className="text-3xl font-bold text-white mb-2">
+                Dashboard
+              </h1>
+              <p className="text-gray-400">
+                Welcome back, {user?.email || "User"}!
+              </p>
             </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Clock className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Pending
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats.pending}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <TrendingUp className="h-8 w-8 text-green-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    In Progress
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats.inProgress}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <CheckCircle className="h-8 w-8 text-green-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Completed
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats.completed}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Additional Stats */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-        <div className="card">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <AlertTriangle className="h-8 w-8 text-red-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    High Priority
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats.highPriority}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-body">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <Calendar className="h-8 w-8 text-orange-600" />
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">
-                    Overdue
-                  </dt>
-                  <dd className="text-lg font-medium text-gray-900">
-                    {stats.overdue}
-                  </dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Recent Tasks */}
-      <div className="card">
-        <div className="card-header">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            Recent Tasks
-          </h3>
-        </div>
-        <div className="card-body">
-          {recentTasks.length === 0 ? (
-            <p className="text-gray-500 text-center py-4">No tasks found</p>
-          ) : (
-            <div className="space-y-4">
-              {recentTasks.map((task) => (
-                <div
-                  key={task.id}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-lg hover:bg-gray-50">
-                  <div className="flex items-center space-x-3">
-                    {getStatusIcon(task.status)}
-                    <div>
-                      <h4 className="text-sm font-medium text-gray-900">
-                        {task.title}
-                      </h4>
-                      <p className="text-sm text-gray-500">
-                        Created{" "}
-                        {format(new Date(task.created_at), "MMM dd, yyyy")}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span
-                      className={`badge ${getPriorityColor(task.priority)}`}>
-                      {task.priority}
-                    </span>
-                    <Link
-                      to={`/tasks/${task.id}`}
-                      className="text-primary-600 hover:text-primary-500 text-sm font-medium">
-                      View
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-          <div className="mt-4 text-center">
             <Link
-              to="/tasks"
-              className="text-primary-600 hover:text-primary-500 text-sm font-medium">
-              View all tasks →
+              to="/tasks/new"
+              className="btn-primary mt-4 sm:mt-0 flex items-center space-x-2"
+            >
+              <Plus className="w-5 h-5" />
+              <span>New Task</span>
             </Link>
           </div>
         </div>
+
+        {/* Stats Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          {stats.map((stat, index) => {
+            const Icon = stat.icon;
+            return (
+              <div
+                key={stat.title}
+                className={`card glass-hover fade-in-up`}
+                style={{ animationDelay: `${index * 0.1}s` }}
+              >
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-gray-400 text-sm font-medium">
+                      {stat.title}
+                    </p>
+                    <p className="text-3xl font-bold text-white mt-2">
+                      {stat.value}
+                    </p>
+                  </div>
+                  <div
+                    className={`w-12 h-12 rounded-xl flex items-center justify-center ${stat.bgColor} ${stat.borderColor} border`}
+                  >
+                    <Icon className={`w-6 h-6 ${stat.color}`} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Recent Tasks Section */}
+        <div className="card glass fade-in-up" style={{ animationDelay: "0.6s" }}>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-xl font-semibold text-white">Recent Tasks</h2>
+            <Link
+              to="/tasks"
+              className="text-green-400 hover:text-green-300 font-medium transition-colors duration-200 flex items-center space-x-1"
+            >
+              <span>View all tasks</span>
+              <ArrowRight className="w-4 h-4" />
+            </Link>
+          </div>
+
+          {/* Empty State */}
+          <div className="text-center py-12">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gray-800/50 flex items-center justify-center">
+              <CheckSquare className="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 className="text-lg font-medium text-gray-300 mb-2">
+              No tasks found
+            </h3>
+            <p className="text-gray-400 mb-6">
+              Get started by creating your first task
+            </p>
+            <Link
+              to="/tasks/new"
+              className="btn-primary inline-flex items-center space-x-2"
+            >
+              <Plus className="w-5 h-5" />
+              <span>Create Task</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* Quick Actions */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+          <div className="card glass-hover fade-in-up" style={{ animationDelay: "0.7s" }}>
+            <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+            <div className="space-y-3">
+              <Link
+                to="/tasks/new"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors duration-200"
+              >
+                <Plus className="w-5 h-5 text-green-400 mr-3" />
+                <span className="text-gray-300">Create New Task</span>
+              </Link>
+              <Link
+                to="/tasks"
+                className="flex items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors duration-200"
+              >
+                <CheckSquare className="w-5 h-5 text-blue-400 mr-3" />
+                <span className="text-gray-300">View All Tasks</span>
+              </Link>
+              {user?.role === "admin" && (
+                <Link
+                  to="/users"
+                  className="flex items-center p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/50 transition-colors duration-200"
+                >
+                  <div className="w-5 h-5 text-purple-400 mr-3 rounded-full bg-purple-500/20 flex items-center justify-center">
+                    <span className="text-xs">👥</span>
+                  </div>
+                  <span className="text-gray-300">Manage Users</span>
+                </Link>
+              )}
+            </div>
+          </div>
+
+          <div className="card glass-hover fade-in-up" style={{ animationDelay: "0.8s" }}>
+            <h3 className="text-lg font-semibold text-white mb-4">System Status</h3>
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Database</span>
+                <span className="flex items-center text-green-400">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                  Connected
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">API Status</span>
+                <span className="flex items-center text-green-400">
+                  <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
+                  Online
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-400">Last Sync</span>
+                <span className="text-gray-300">
+                  {new Date().toLocaleTimeString()}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Floating Elements */}
+      <div className="fixed top-20 right-20 w-32 h-32 bg-green-500/5 rounded-full blur-3xl"></div>
+      <div className="fixed bottom-20 left-20 w-40 h-40 bg-blue-500/5 rounded-full blur-3xl"></div>
     </div>
   );
 };
