@@ -49,11 +49,27 @@ export const logout = createAsyncThunk("auth/logout", async () => {
   return null;
 });
 
+// Clean up invalid localStorage data
+(() => {
+  try {
+    const userData = localStorage.getItem("user");
+    if (userData === "undefined" || userData === "null") {
+      localStorage.removeItem("user");
+    }
+  } catch (error) {
+    console.error("Error cleaning localStorage:", error);
+  }
+})();
+
 const initialState = {
   user: (() => {
     try {
       const userData = localStorage.getItem("user");
-      return userData ? JSON.parse(userData) : null;
+      // Check if userData exists and is not "undefined" or "null"
+      if (userData && userData !== "undefined" && userData !== "null") {
+        return JSON.parse(userData);
+      }
+      return null;
     } catch (error) {
       console.error("Error parsing user data from localStorage:", error);
       localStorage.removeItem("user"); // Clear invalid data
