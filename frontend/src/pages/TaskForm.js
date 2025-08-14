@@ -22,7 +22,7 @@ const TaskForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { user } = useSelector((state) => state.auth);
+  const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { loading, error } = useSelector((state) => state.tasks);
 
   const [formData, setFormData] = useState({
@@ -39,6 +39,51 @@ const TaskForm = () => {
 
   const [newTag, setNewTag] = useState("");
   const [isEditing, setIsEditing] = useState(false);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (!isAuthenticated) {
+      navigate("/login");
+      return;
+    }
+  }, [isAuthenticated, navigate]);
+
+  // Show loading if user data is not available yet
+  if (!isAuthenticated || !user) {
+    return (
+      <div className="dashboard-container">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">
+              {!isAuthenticated ? "Redirecting to login..." : "Loading user data..."}
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Additional safety check for user data
+  if (!user.id && !user.email) {
+    return (
+      <div className="dashboard-container">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-6 h-6 text-red-400" />
+            </div>
+            <p className="text-gray-400 mb-4">User data is incomplete</p>
+            <button
+              onClick={() => navigate("/login")}
+              className="btn-primary">
+              Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Priority options
   const priorityOptions = [
@@ -148,10 +193,16 @@ const TaskForm = () => {
       return;
     }
 
+    if (!user) {
+      toast.error("User information not available. Please log in again.");
+      navigate("/login");
+      return;
+    }
+
     try {
       const taskData = {
         ...formData,
-        createdBy: user.id,
+        createdBy: user.id || user.email || "unknown",
       };
 
       if (isEditing) {
