@@ -30,6 +30,20 @@ export const fetchTask = createAsyncThunk(
   }
 );
 
+export const fetchTaskById = createAsyncThunk(
+  "tasks/fetchTaskById",
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await taskAPI.getTask(id);
+      return response.data.task;
+    } catch (error) {
+      return rejectWithValue(
+        error.response?.data?.message || "Failed to fetch task"
+      );
+    }
+  }
+);
+
 export const createTask = createAsyncThunk(
   "tasks/createTask",
   async (taskData, { rejectWithValue }) => {
@@ -149,6 +163,19 @@ const taskSlice = createSlice({
         state.currentTask = action.payload.data.task;
       })
       .addCase(fetchTask.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      // Fetch task by ID
+      .addCase(fetchTaskById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTaskById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentTask = action.payload;
+      })
+      .addCase(fetchTaskById.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
