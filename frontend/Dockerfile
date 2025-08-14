@@ -8,12 +8,8 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Create the public directory and index.html file
-RUN mkdir -p public
-RUN echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Task Management System</title></head><body><div id="root"></div></body></html>' > public/index.html
-
-# Copy source files
-COPY src/ ./src/
+# Copy all files (including public directory)
+COPY . .
 
 # Expose port
 EXPOSE 3000
