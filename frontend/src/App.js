@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { getCurrentUser } from "./store/slices/authSlice";
+// import { getCurrentUser } from "./store/slices/authSlice";
 import { toast } from "react-hot-toast";
 
 // Components
@@ -23,9 +23,8 @@ function App() {
   );
 
   useEffect(() => {
-    if (localStorage.getItem("token")) {
-      dispatch(getCurrentUser());
-    }
+    // Don't automatically call getCurrentUser to prevent logout issues
+    // The authentication state is already set based on localStorage token
   }, [dispatch]);
 
   useEffect(() => {
