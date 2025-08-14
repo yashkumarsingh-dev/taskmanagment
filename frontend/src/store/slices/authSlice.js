@@ -50,7 +50,9 @@ export const logout = createAsyncThunk("auth/logout", async () => {
 });
 
 const initialState = {
-  user: null,
+  user: localStorage.getItem("user")
+    ? JSON.parse(localStorage.getItem("user"))
+    : null,
   token: localStorage.getItem("token"),
   isAuthenticated: !!localStorage.getItem("token"),
   loading: false,
@@ -79,6 +81,8 @@ const authSlice = createSlice({
         state.token = action.payload.token;
         // Ensure token is stored in localStorage
         localStorage.setItem("token", action.payload.token);
+        // Also store user data in localStorage for persistence
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -119,6 +123,9 @@ const authSlice = createSlice({
         state.token = null;
         state.isAuthenticated = false;
         state.error = null;
+        // Clear localStorage
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
       });
   },
 });
