@@ -116,17 +116,17 @@ const Layout = ({ children }) => {
 
       {/* Main content */}
       <div className="lg:pl-64">
-        {/* Top bar */}
-        <div className="sticky top-0 z-30 bg-gray-900/80 backdrop-blur-lg border-b border-gray-700/50">
-          <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        {/* Mobile top bar only */}
+        <div className="lg:hidden sticky top-0 z-30 bg-gray-900/80 backdrop-blur-lg border-b border-gray-700/50">
+          <div className="flex h-16 items-center justify-between px-4 sm:px-6">
             <button
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700/50 transition-colors">
+              className="p-2 rounded-lg text-gray-400 hover:text-white hover:bg-gray-700/50 transition-colors">
               <Menu className="w-5 h-5" />
             </button>
-            <div className="flex-1 lg:hidden" />
+            <div className="flex-1" />
             <div className="flex items-center space-x-4">
-              <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-400">
+              <div className="flex items-center space-x-2 text-sm text-gray-400">
                 <span>Welcome,</span>
                 <span className="text-white font-medium">
                   {user?.email?.split("@")[0] || "User"}

@@ -593,17 +593,17 @@ body::before {
 .dashboard-container {
   display: flex;
   flex-direction: column;
-  padding: 2rem;
+  padding: 1rem;
   max-width: 80rem;
   margin: 0 auto;
-  gap: 2rem;
+  gap: 1.5rem;
   min-height: 100vh;
 }
 
 @media (min-width: 1280px) {
   .dashboard-container {
-    padding: 3rem;
-    gap: 3rem;
+    padding: 1.5rem;
+    gap: 2rem;
   }
 }
 
@@ -612,7 +612,7 @@ body::before {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 1.5rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   width: 100%;
 }
 
@@ -694,8 +694,8 @@ body::before {
 .dashboard-header {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
   width: 100%;
 }
 
@@ -704,7 +704,7 @@ body::before {
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
   }
 }
 
@@ -715,9 +715,9 @@ body::before {
 }
 
 .header-icon {
-  width: 4rem;
-  height: 4rem;
-  border-radius: 1.5rem;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 1rem;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
   display: flex;
   align-items: center;
@@ -725,21 +725,30 @@ body::before {
   box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3);
 }
 
+@media (min-width: 1024px) {
+  .header-icon {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 1.5rem;
+  }
+}
+
 .header-text h1 {
-  font-size: 2.5rem;
+  font-size: 2rem;
   font-weight: 700;
   color: white;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
 }
 
 @media (min-width: 1024px) {
   .header-text h1 {
     font-size: 3rem;
+    margin-bottom: 0.5rem;
   }
 }
 
 .header-text p {
-  font-size: 1.125rem;
+  font-size: 1rem;
   color: #9ca3af;
 }
 
@@ -751,7 +760,7 @@ body::before {
 
 /* Enhanced Button Variations */
 .btn-large {
-  @apply px-8 py-4 text-lg font-medium transition-all duration-300 ease-in-out;
+  @apply px-6 py-3 text-base font-medium transition-all duration-300 ease-in-out;
   background: var(--gradient-accent);
   color: white;
   box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
@@ -760,6 +769,12 @@ body::before {
   overflow: hidden;
   transform: translateZ(0);
   border-radius: 0.75rem;
+}
+
+@media (min-width: 1024px) {
+  .btn-large {
+    @apply px-8 py-4 text-lg;
+  }
 }
 
 .btn-large:hover {
@@ -771,7 +786,7 @@ body::before {
 /* Enhanced Empty State */
 .empty-state {
   text-align: center;
-  padding: 3rem 2rem;
+  padding: 2rem 1rem;
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -786,9 +801,9 @@ body::before {
 }
 
 .empty-state-icon {
-  width: 6rem;
-  height: 6rem;
-  margin: 0 auto 2rem;
+  width: 5rem;
+  height: 5rem;
+  margin: 0 auto 1.5rem;
   border-radius: 1.5rem;
   background: linear-gradient(
     135deg,
@@ -805,27 +820,29 @@ body::before {
   .empty-state-icon {
     width: 8rem;
     height: 8rem;
+    margin-bottom: 2rem;
   }
 }
 
 .empty-state h3 {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 600;
   color: #d1d5db;
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
 }
 
 @media (min-width: 1024px) {
   .empty-state h3 {
     font-size: 1.5rem;
+    margin-bottom: 1rem;
   }
 }
 
 .empty-state p {
-  font-size: 1rem;
+  font-size: 0.875rem;
   color: #9ca3af;
-  margin-bottom: 2rem;
-  max-width: 24rem;
+  margin-bottom: 1.5rem;
+  max-width: 20rem;
   margin-left: auto;
   margin-right: auto;
 }
@@ -862,4 +879,20 @@ body::before {
 .main-content-grid > * {
   display: block !important;
   visibility: visible !important;
+}
+
+/* Remove any top margin that might be causing the gap */
+.dashboard-container > *:first-child {
+  margin-top: 0 !important;
+}
+
+/* Ensure the main content area starts at the top */
+.dashboard-container {
+  padding-top: 0 !important;
+}
+
+@media (min-width: 1280px) {
+  .dashboard-container {
+    padding-top: 0 !important;
+  }
 }
