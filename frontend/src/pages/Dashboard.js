@@ -115,7 +115,7 @@ const Dashboard = () => {
         <div className="absolute bottom-1/4 left-1/4 w-20 h-20 bg-red-500/5 rounded-full blur-2xl floating-delayed"></div>
       </div>
 
-      <div className="relative z-10 dashboard-container">
+      <div className="relative z-10 dashboard-container dashboard-content">
         {/* Enhanced Header */}
         <div className="dashboard-header fade-in">
           <div className="header-content">
