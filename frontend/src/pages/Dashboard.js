@@ -105,7 +105,7 @@ const Dashboard = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
+    <div className="dashboard-container dashboard-content">
       {/* Enhanced Background Pattern */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-20 left-20 w-32 h-32 bg-green-500/10 rounded-full blur-3xl floating"></div>
@@ -115,7 +115,7 @@ const Dashboard = () => {
         <div className="absolute bottom-1/4 left-1/4 w-20 h-20 bg-red-500/5 rounded-full blur-2xl floating-delayed"></div>
       </div>
 
-      <div className="relative z-10 dashboard-container dashboard-content">
+      <div className="relative z-10">
         {/* Enhanced Header */}
         <div className="dashboard-header fade-in">
           <div className="header-content">
@@ -199,115 +199,104 @@ const Dashboard = () => {
               </div>
               <Link
                 to="/tasks"
-                className="text-green-400 hover:text-green-300 font-medium transition-colors duration-200 flex items-center space-x-2 group">
-                <span>View all tasks</span>
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-200" />
+                className="flex items-center space-x-2 text-green-400 hover:text-green-300 transition-colors group">
+                <span className="text-sm font-medium">View all tasks</span>
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
-            {/* Enhanced Empty State */}
+            {/* Empty State */}
             <div className="empty-state">
               <div className="empty-state-icon">
-                <CheckSquare className="w-16 h-16 text-gray-400" />
+                <CheckSquare className="w-12 h-12 text-gray-400" />
               </div>
-              <h3>No tasks found</h3>
-              <p>
-                Get started by creating your first task and begin organizing
-                your workflow
+              <h3 className="text-xl font-semibold text-gray-300">
+                No tasks yet
+              </h3>
+              <p className="text-gray-500">
+                Get started by creating your first task. It's easy and will help
+                you stay organized.
               </p>
               <Link
                 to="/tasks/new"
-                className="btn-large inline-flex items-center space-x-3 group">
-                <Plus className="w-6 h-6 group-hover:rotate-90 transition-transform duration-300" />
+                className="btn-primary flex items-center space-x-2 group">
+                <Plus className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
                 <span>Create Task</span>
               </Link>
             </div>
           </div>
 
-          {/* Enhanced Sidebar - Takes 1 column */}
-          <div className="space-y-8">
-            {/* Enhanced Quick Actions */}
-            <div
-              className="card-sidebar glass-hover fade-in-up"
-              style={{ animationDelay: "0.7s" }}>
+          {/* Enhanced Quick Actions and System Status - Takes 1 column */}
+          <div className="space-y-6">
+            {/* Quick Actions */}
+            <div className="card-sidebar glass fade-in-up" style={{ animationDelay: "0.7s" }}>
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center">
                   <Zap className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white">Quick Actions</h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">Quick Actions</h3>
+                  <p className="text-sm text-gray-400">Common tasks and shortcuts</p>
+                </div>
               </div>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {quickActions.map((action, index) => {
-                  if (action.adminOnly && user?.role !== "admin") return null;
                   const Icon = action.icon;
                   return (
                     <Link
                       key={action.title}
                       to={action.href}
-                      className="flex items-center p-4 rounded-xl bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-300 group border border-transparent hover:border-gray-600/50">
+                      className={`flex items-center space-x-3 p-3 rounded-xl transition-all duration-300 hover:bg-gray-800/50 group ${
+                        action.adminOnly && user?.role !== "admin" ? "hidden" : ""
+                      }`}>
                       <div
-                        className={`w-12 h-12 rounded-xl ${action.bgColor} flex items-center justify-center mr-4 group-hover:scale-110 transition-transform duration-300`}>
-                        <Icon className={`w-6 h-6 ${action.color}`} />
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center ${action.bgColor} group-hover:scale-110 transition-transform duration-300`}>
+                        <Icon className={`w-4 h-4 ${action.color}`} />
                       </div>
                       <div className="flex-1">
-                        <h4 className="text-white font-medium group-hover:text-gradient transition-all duration-300">
+                        <p className="text-sm font-medium text-white group-hover:text-gradient transition-colors">
                           {action.title}
-                        </h4>
-                        <p className="text-gray-400 text-sm">
-                          {action.description}
                         </p>
+                        <p className="text-xs text-gray-400">{action.description}</p>
                       </div>
-                      <ArrowRight className="w-5 h-5 text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
+                      <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-white group-hover:translate-x-1 transition-all duration-300" />
                     </Link>
                   );
                 })}
               </div>
             </div>
 
-            {/* Enhanced System Status */}
-            <div
-              className="card-sidebar glass-hover fade-in-up"
-              style={{ animationDelay: "0.8s" }}>
+            {/* System Status */}
+            <div className="card-sidebar glass fade-in-up" style={{ animationDelay: "0.8s" }}>
               <div className="flex items-center space-x-3 mb-6">
                 <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-green-500 to-green-600 flex items-center justify-center">
                   <Activity className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-white">System Status</h3>
+                <div>
+                  <h3 className="text-lg font-semibold text-white">System Status</h3>
+                  <p className="text-sm text-gray-400">Application health and performance</p>
+                </div>
               </div>
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 border border-gray-700/30">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-green-400 rounded-full pulse"></div>
-                    <span className="text-gray-300 font-medium">Database</span>
-                  </div>
-                  <span className="text-green-400 font-semibold">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">API Status</span>
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
+                    Online
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Database</span>
+                  <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-500/10 text-green-400 border border-green-500/20">
                     Connected
                   </span>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 border border-gray-700/30">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-green-400 rounded-full pulse"></div>
-                    <span className="text-gray-300 font-medium">
-                      API Status
-                    </span>
-                  </div>
-                  <span className="text-green-400 font-semibold">Online</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Last Sync</span>
+                  <span className="text-sm text-gray-300">2 minutes ago</span>
                 </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 border border-gray-700/30">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
-                    <span className="text-gray-300 font-medium">Last Sync</span>
-                  </div>
-                  <span className="text-gray-300 font-mono">
-                    {new Date().toLocaleTimeString()}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-gray-800/30 border border-gray-700/30">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-3 h-3 bg-purple-400 rounded-full"></div>
-                    <span className="text-gray-300 font-medium">Version</span>
-                  </div>
-                  <span className="text-gray-300 font-mono">v1.0.0</span>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-gray-400">Version</span>
+                  <span className="text-sm text-gray-300">v1.0.0</span>
                 </div>
               </div>
             </div>

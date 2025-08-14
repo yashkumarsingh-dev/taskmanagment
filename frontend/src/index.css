@@ -598,6 +598,8 @@ body::before {
   margin: 0 auto;
   gap: 1.5rem;
   min-height: 100vh;
+  position: relative;
+  z-index: 1;
 }
 
 @media (min-width: 1280px) {
