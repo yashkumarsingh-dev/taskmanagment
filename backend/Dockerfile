@@ -6,9 +6,6 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install ALL dependencies (including dev dependencies for nodemon)
-RUN npm install
-
 # Copy source code
 COPY . .
 
@@ -18,5 +15,5 @@ RUN mkdir -p uploads
 # Expose port
 EXPOSE 5000
 
-# Start the application
+# Default command (will be overridden by docker-compose)
 CMD ["npm", "run", "dev"]
