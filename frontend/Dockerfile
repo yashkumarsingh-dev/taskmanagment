@@ -15,5 +15,8 @@ COPY . .
 # Expose port
 EXPOSE 3000
 
+# Set environment variable for React
+ENV CI=false
+
 # Start the application
 CMD ["npm", "start"]
