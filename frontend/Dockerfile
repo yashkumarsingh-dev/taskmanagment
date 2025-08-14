@@ -8,8 +8,15 @@ COPY package*.json ./
 # Install dependencies
 RUN npm install
 
-# Copy all files
-COPY . .
+# Create public directory and copy index.html
+RUN mkdir -p public
+COPY public/index.html ./public/
+
+# Copy source files
+COPY src/ ./src/
+
+# Copy configuration files
+COPY tailwind.config.js postcss.config.js ./
 
 # Expose port
 EXPOSE 3000
