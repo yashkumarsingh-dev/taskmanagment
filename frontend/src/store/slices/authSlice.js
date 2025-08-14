@@ -77,6 +77,8 @@ const authSlice = createSlice({
         state.isAuthenticated = true;
         state.user = action.payload.user;
         state.token = action.payload.token;
+        // Ensure token is stored in localStorage
+        localStorage.setItem("token", action.payload.token);
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -108,10 +110,8 @@ const authSlice = createSlice({
       })
       .addCase(getCurrentUser.rejected, (state) => {
         state.loading = false;
-        state.isAuthenticated = false;
-        state.user = null;
-        state.token = null;
-        localStorage.removeItem("token");
+        // Don't automatically log out the user if getCurrentUser fails
+        // This prevents the login loop issue
       })
       // Logout
       .addCase(logout.fulfilled, (state) => {
