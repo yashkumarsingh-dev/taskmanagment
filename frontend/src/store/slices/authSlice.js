@@ -50,9 +50,16 @@ export const logout = createAsyncThunk("auth/logout", async () => {
 });
 
 const initialState = {
-  user: localStorage.getItem("user")
-    ? JSON.parse(localStorage.getItem("user"))
-    : null,
+  user: (() => {
+    try {
+      const userData = localStorage.getItem("user");
+      return userData ? JSON.parse(userData) : null;
+    } catch (error) {
+      console.error("Error parsing user data from localStorage:", error);
+      localStorage.removeItem("user"); // Clear invalid data
+      return null;
+    }
+  })(),
   token: localStorage.getItem("token"),
   isAuthenticated: !!localStorage.getItem("token"),
   loading: false,
