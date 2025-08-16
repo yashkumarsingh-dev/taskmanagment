@@ -12,8 +12,11 @@ RUN npm install
 RUN mkdir -p public
 RUN echo '<!DOCTYPE html><html lang="en"><head><meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" /><title>Task Management System</title></head><body><div id="root"></div></body></html>' > public/index.html
 
-# Copy source files
-COPY src/ ./src/
+# Create a simple favicon to prevent 500 errors
+RUN echo '<!DOCTYPE html><html><head><link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📋</text></svg>"></head><body></body></html>' > public/favicon.ico
+
+# Copy the rest of the application
+COPY . .
 
 # Copy configuration files
 COPY tailwind.config.js postcss.config.js ./

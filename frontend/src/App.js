@@ -26,6 +26,16 @@ function App() {
     (state) => state.auth
   );
 
+  // Debug: Log current authentication state
+  useEffect(() => {
+    console.log("Current auth state:", {
+      isAuthenticated,
+      hasToken: !!token,
+      tokenValue: token,
+      loading,
+    });
+  }, [isAuthenticated, token, loading]);
+
   // Initialize authentication on app startup
   useEffect(() => {
     if (
@@ -37,7 +47,11 @@ function App() {
       console.log("Initializing authentication with token:", token);
       dispatch(getCurrentUser());
     } else if (!token || token === "undefined" || token === "null") {
-      console.log("No valid token found, redirecting to login");
+      // Only log once to reduce console spam
+      if (!localStorage.getItem("logged_out")) {
+        console.log("No valid token found, user needs to login");
+        localStorage.setItem("logged_out", "true");
+      }
       // Clear any invalid tokens
       localStorage.removeItem("token");
       localStorage.removeItem("user");
