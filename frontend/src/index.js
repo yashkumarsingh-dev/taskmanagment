@@ -3,8 +3,9 @@ import ReactDOM from "react-dom/client";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
 import { store } from "./store";
-import App from "./App";
+import "./utils/consoleSuppression";
 import "./index.css";
+import App from "./App";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
