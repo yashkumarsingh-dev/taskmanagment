@@ -58,38 +58,6 @@ function App() {
     );
   }
 
-  // Redirect to login if no valid token
-  if (!token || token === "undefined" || token === "null") {
-    return (
-      <div className="dark">
-        <div className="min-h-screen bg-gray-900 flex items-center justify-center">
-          <div className="text-center">
-            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <span className="text-2xl">🔒</span>
-            </div>
-            <h1 className="text-xl font-semibold text-white mb-2">
-              Authentication Required
-            </h1>
-            <p className="text-gray-400 mb-4">Please log in to continue</p>
-            <button
-              onClick={() => (window.location.href = "/login")}
-              className="btn-primary">
-              Go to Login
-            </button>
-            <button
-              onClick={() => {
-                localStorage.clear();
-                window.location.reload();
-              }}
-              className="btn-secondary mt-2">
-              Clear Data & Reload
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <ErrorBoundary>
       <div className="dark">
@@ -100,7 +68,7 @@ function App() {
           }}>
           <div className="min-h-screen">
             <Routes>
-              {/* Public routes */}
+              {/* Public routes - always accessible */}
               <Route
                 path="/login"
                 element={
@@ -122,55 +90,75 @@ function App() {
                 }
               />
 
-              {/* Protected routes */}
+              {/* Protected routes - require authentication */}
               <Route
                 path="/dashboard"
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <Dashboard />
-                    </Layout>
-                  </ProtectedRoute>
+                  !isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <ProtectedRoute>
+                      <Layout>
+                        <Dashboard />
+                      </Layout>
+                    </ProtectedRoute>
+                  )
                 }
               />
               <Route
                 path="/tasks"
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <TaskList />
-                    </Layout>
-                  </ProtectedRoute>
+                  !isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <ProtectedRoute>
+                      <Layout>
+                        <TaskList />
+                      </Layout>
+                    </ProtectedRoute>
+                  )
                 }
               />
               <Route
                 path="/tasks/new"
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <TaskForm />
-                    </Layout>
-                  </ProtectedRoute>
+                  !isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <ProtectedRoute>
+                      <Layout>
+                        <TaskForm />
+                      </Layout>
+                    </ProtectedRoute>
+                  )
                 }
               />
               <Route
                 path="/tasks/:id"
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <TaskDetail />
-                    </Layout>
-                  </ProtectedRoute>
+                  !isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <ProtectedRoute>
+                      <Layout>
+                        <TaskDetail />
+                      </Layout>
+                    </ProtectedRoute>
+                  )
                 }
               />
               <Route
                 path="/tasks/:id/edit"
                 element={
-                  <ProtectedRoute>
-                    <Layout>
-                      <TaskForm />
-                    </Layout>
-                  </ProtectedRoute>
+                  !isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <ProtectedRoute>
+                      <Layout>
+                        <TaskForm />
+                      </Layout>
+                    </ProtectedRoute>
+                  )
                 }
               />
 
@@ -178,11 +166,15 @@ function App() {
               <Route
                 path="/users"
                 element={
-                  <AdminRoute>
-                    <Layout>
-                      <UserManagement />
-                    </Layout>
-                  </AdminRoute>
+                  !isAuthenticated ? (
+                    <Navigate to="/login" replace />
+                  ) : (
+                    <AdminRoute>
+                      <Layout>
+                        <UserManagement />
+                      </Layout>
+                    </AdminRoute>
+                  )
                 }
               />
 
@@ -197,7 +189,7 @@ function App() {
                   )
                 }
               />
-              <Route path="*" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
             </Routes>
           </div>
         </Router>
