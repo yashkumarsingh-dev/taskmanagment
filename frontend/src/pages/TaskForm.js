@@ -96,7 +96,7 @@ const TaskForm = () => {
   // Status options
   const statusOptions = [
     { value: "pending", label: "Pending", color: "text-yellow-400", bgColor: "bg-yellow-500/10" },
-    { value: "in-progress", label: "In Progress", color: "text-blue-400", bgColor: "bg-blue-500/10" },
+    { value: "in_progress", label: "In Progress", color: "text-blue-400", bgColor: "bg-blue-500/10" },
     { value: "completed", label: "Completed", color: "text-green-400", bgColor: "bg-green-500/10" },
     { value: "cancelled", label: "Cancelled", color: "text-gray-400", bgColor: "bg-gray-500/10" },
   ];
@@ -188,6 +188,10 @@ const TaskForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     
+    console.log("Form submission started");
+    console.log("Form data:", formData);
+    console.log("User:", user);
+    
     if (!formData.title.trim()) {
       toast.error("Task title is required");
       return;
@@ -200,21 +204,33 @@ const TaskForm = () => {
     }
 
     try {
+      // Transform field names to match backend API expectations
       const taskData = {
-        ...formData,
-        createdBy: user.id || user.email || "unknown",
+        title: formData.title,
+        description: formData.description,
+        status: formData.status === "in-progress" ? "in_progress" : formData.status,
+        priority: formData.priority,
+        due_date: formData.dueDate || null,
+        assigned_to: formData.assignedTo || null,
       };
 
+      console.log("Task data to be sent:", taskData);
+
       if (isEditing) {
+        console.log("Updating task with ID:", id);
         await dispatch(updateTask({ id, taskData })).unwrap();
         toast.success("Task updated successfully!");
       } else {
-        await dispatch(createTask(taskData)).unwrap();
+        console.log("Creating new task");
+        const result = await dispatch(createTask(taskData)).unwrap();
+        console.log("Task creation result:", result);
         toast.success("Task created successfully!");
       }
       
+      console.log("Navigating to tasks page");
       navigate("/tasks");
     } catch (error) {
+      console.error("Task creation/update error:", error);
       toast.error(error.message || "Failed to save task");
     }
   };
