@@ -77,7 +77,7 @@ const initialState = {
     }
   })(),
   token: localStorage.getItem("token"),
-  isAuthenticated: !!localStorage.getItem("token"),
+  isAuthenticated: false, // Start as false, will be set to true after validation
   loading: false,
   error: null,
 };
@@ -134,11 +134,19 @@ const authSlice = createSlice({
         state.loading = false;
         state.user = action.payload.user;
         state.isAuthenticated = true;
+        // Update localStorage with fresh user data
+        localStorage.setItem("user", JSON.stringify(action.payload.user));
       })
-      .addCase(getCurrentUser.rejected, (state) => {
+      .addCase(getCurrentUser.rejected, (state, action) => {
         state.loading = false;
-        // Don't automatically log out the user if getCurrentUser fails
-        // This prevents the login loop issue
+        // Clear invalid authentication state
+        state.user = null;
+        state.token = null;
+        state.isAuthenticated = false;
+        state.error = action.payload;
+        // Clear localStorage
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
       })
       // Logout
       .addCase(logout.fulfilled, (state) => {

@@ -1,12 +1,13 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Navigate,
 } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Toaster } from "react-hot-toast";
+import { getCurrentUser } from "./store/slices/authSlice";
 import ErrorBoundary from "./components/ErrorBoundary";
 import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -20,7 +21,30 @@ import TaskForm from "./pages/TaskForm";
 import UserManagement from "./pages/UserManagement";
 
 function App() {
-  const { isAuthenticated } = useSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const { isAuthenticated, token, loading } = useSelector((state) => state.auth);
+
+  // Initialize authentication on app startup
+  useEffect(() => {
+    if (token && !isAuthenticated) {
+      console.log("Initializing authentication with token:", token);
+      dispatch(getCurrentUser());
+    }
+  }, [dispatch, token, isAuthenticated]);
+
+  // Show loading while initializing authentication
+  if (loading && token) {
+    return (
+      <div className="dark">
+        <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
+            <p className="text-gray-400">Initializing...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <ErrorBoundary>

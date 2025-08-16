@@ -29,13 +29,6 @@ const TaskForm = () => {
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { loading, error } = useSelector((state) => state.tasks);
 
-  console.log(
-    "TaskForm render - isAuthenticated:",
-    isAuthenticated,
-    "user:",
-    user
-  );
-
   const [formData, setFormData] = useState({
     title: "",
     description: "",
@@ -221,9 +214,6 @@ const TaskForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("Form submission started");
-    console.log("Form data:", formData);
-
     if (!formData.title.trim()) {
       toast.error("Task title is required");
       return;
@@ -241,23 +231,16 @@ const TaskForm = () => {
         assigned_to: formData.assignedTo || null,
       };
 
-      console.log("Task data to be sent:", taskData);
-
       if (isEditing) {
-        console.log("Updating task with ID:", id);
         await dispatch(updateTask({ id, taskData })).unwrap();
         toast.success("Task updated successfully!");
       } else {
-        console.log("Creating new task");
         const result = await dispatch(createTask(taskData)).unwrap();
-        console.log("Task creation result:", result);
         toast.success("Task created successfully!");
       }
 
-      console.log("Navigating to tasks page");
       navigate("/tasks");
     } catch (error) {
-      console.error("Task creation/update error:", error);
       toast.error(error.message || "Failed to save task");
     }
   };
@@ -318,7 +301,6 @@ const TaskForm = () => {
             <button
               onClick={async () => {
                 try {
-                  console.log("Testing API directly...");
                   const testData = {
                     title: "Test Task",
                     description: "This is a test task",
@@ -327,12 +309,9 @@ const TaskForm = () => {
                     due_date: null,
                     assigned_to: null,
                   };
-                  console.log("Test data:", testData);
                   const result = await dispatch(createTask(testData)).unwrap();
-                  console.log("Test result:", result);
                   toast.success("Test task created!");
                 } catch (error) {
-                  console.error("Test error:", error);
                   toast.error("Test failed: " + error.message);
                 }
               }}
