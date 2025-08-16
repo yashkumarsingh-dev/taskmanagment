@@ -31,7 +31,14 @@ const TaskForm = () => {
 
   // Debug: Log authentication state
   useEffect(() => {
-    console.log("TaskForm render - isAuthenticated:", isAuthenticated, "user:", user, "token:", token);
+    console.log(
+      "TaskForm render - isAuthenticated:",
+      isAuthenticated,
+      "user:",
+      user,
+      "token:",
+      token
+    );
     console.log("localStorage token:", localStorage.getItem("token"));
   }, [isAuthenticated, user, token]);
 
@@ -275,7 +282,7 @@ const TaskForm = () => {
     <div className="dashboard-container">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-20">
-        <div className="absolute top-20 left-20 w-32 h-32 bg-green-500/10 rounded-full blur-3xl floating"></div>
+        <div className="absolute top-20 left-20 w-32 h-32 bg-emerald-600/10 rounded-full blur-3xl floating"></div>
         <div className="absolute bottom-20 right-20 w-40 h-40 bg-blue-500/10 rounded-full blur-3xl floating-delayed"></div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl floating-slow"></div>
       </div>
@@ -342,20 +349,24 @@ const TaskForm = () => {
                   // Test authentication directly
                   const token = localStorage.getItem("token");
                   console.log("Testing authentication with token:", token);
-                  
+
                   const response = await fetch("/api/auth/me", {
                     headers: {
-                      "Authorization": `Bearer ${token}`,
-                      "Content-Type": "application/json"
-                    }
+                      Authorization: `Bearer ${token}`,
+                      "Content-Type": "application/json",
+                    },
                   });
-                  
+
                   if (response.ok) {
                     const userData = await response.json();
                     console.log("Auth test successful:", userData);
                     toast.success("Authentication working!");
                   } else {
-                    console.log("Auth test failed:", response.status, response.statusText);
+                    console.log(
+                      "Auth test failed:",
+                      response.status,
+                      response.statusText
+                    );
                     toast.error("Authentication failed: " + response.status);
                   }
                 } catch (error) {
@@ -375,7 +386,7 @@ const TaskForm = () => {
             {/* Basic Information */}
             <div className="space-y-6">
               <h2 className="text-xl font-semibold text-white flex items-center space-x-2">
-                <FileText className="w-5 h-5 text-green-400" />
+                <FileText className="w-5 h-5 text-emerald-400" />
                 <span>Basic Information</span>
               </h2>
 
@@ -540,7 +551,7 @@ const TaskForm = () => {
                     {formData.tags.map((tag, index) => (
                       <span
                         key={index}
-                        className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
+                        className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-emerald-600/10 text-emerald-400 border border-emerald-600/20">
                         <span className="text-sm">{tag}</span>
                         <button
                           type="button"
