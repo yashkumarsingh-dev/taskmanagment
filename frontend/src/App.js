@@ -22,24 +22,68 @@ import UserManagement from "./pages/UserManagement";
 
 function App() {
   const dispatch = useDispatch();
-  const { isAuthenticated, token, loading } = useSelector((state) => state.auth);
+  const { isAuthenticated, token, loading } = useSelector(
+    (state) => state.auth
+  );
 
   // Initialize authentication on app startup
   useEffect(() => {
-    if (token && !isAuthenticated) {
+    if (
+      token &&
+      token !== "undefined" &&
+      token !== "null" &&
+      !isAuthenticated
+    ) {
       console.log("Initializing authentication with token:", token);
       dispatch(getCurrentUser());
+    } else if (!token || token === "undefined" || token === "null") {
+      console.log("No valid token found, redirecting to login");
+      // Clear any invalid tokens
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
     }
   }, [dispatch, token, isAuthenticated]);
 
   // Show loading while initializing authentication
-  if (loading && token) {
+  if (loading && token && token !== "undefined" && token !== "null") {
     return (
       <div className="dark">
         <div className="min-h-screen bg-gray-900 flex items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
             <p className="text-gray-400">Initializing...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect to login if no valid token
+  if (!token || token === "undefined" || token === "null") {
+    return (
+      <div className="dark">
+        <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">🔒</span>
+            </div>
+            <h1 className="text-xl font-semibold text-white mb-2">
+              Authentication Required
+            </h1>
+            <p className="text-gray-400 mb-4">Please log in to continue</p>
+            <button
+              onClick={() => (window.location.href = "/login")}
+              className="btn-primary">
+              Go to Login
+            </button>
+            <button
+              onClick={() => {
+                localStorage.clear();
+                window.location.reload();
+              }}
+              className="btn-secondary mt-2">
+              Clear Data & Reload
+            </button>
           </div>
         </div>
       </div>
@@ -53,8 +97,7 @@ function App() {
           future={{
             v7_startTransition: true,
             v7_relativeSplatPath: true,
-          }}
-        >
+          }}>
           <div className="min-h-screen">
             <Routes>
               {/* Public routes */}
