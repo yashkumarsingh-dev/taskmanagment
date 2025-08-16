@@ -26,8 +26,14 @@ const TaskForm = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { id } = useParams();
-  const { user, isAuthenticated } = useSelector((state) => state.auth);
+  const { user, isAuthenticated, token } = useSelector((state) => state.auth);
   const { loading, error } = useSelector((state) => state.tasks);
+
+  // Debug: Log authentication state
+  useEffect(() => {
+    console.log("TaskForm render - isAuthenticated:", isAuthenticated, "user:", user, "token:", token);
+    console.log("localStorage token:", localStorage.getItem("token"));
+  }, [isAuthenticated, user, token]);
 
   const [formData, setFormData] = useState({
     title: "",
@@ -214,6 +220,12 @@ const TaskForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Debug: Log form submission details
+    console.log("Form submission started");
+    console.log("Form data:", formData);
+    console.log("Current auth state:", { isAuthenticated, user, token });
+    console.log("localStorage token:", localStorage.getItem("token"));
+
     if (!formData.title.trim()) {
       toast.error("Task title is required");
       return;
@@ -231,16 +243,22 @@ const TaskForm = () => {
         assigned_to: formData.assignedTo || null,
       };
 
+      console.log("Task data to be sent:", taskData);
+
       if (isEditing) {
+        console.log("Updating existing task...");
         await dispatch(updateTask({ id, taskData })).unwrap();
         toast.success("Task updated successfully!");
       } else {
+        console.log("Creating new task...");
         const result = await dispatch(createTask(taskData)).unwrap();
+        console.log("Task creation result:", result);
         toast.success("Task created successfully!");
       }
 
       navigate("/tasks");
     } catch (error) {
+      console.error("Task creation error:", error);
       toast.error(error.message || "Failed to save task");
     }
   };
@@ -317,6 +335,36 @@ const TaskForm = () => {
               }}
               className="btn-secondary flex items-center space-x-2">
               <span>Test API</span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  // Test authentication directly
+                  const token = localStorage.getItem("token");
+                  console.log("Testing authentication with token:", token);
+                  
+                  const response = await fetch("/api/auth/me", {
+                    headers: {
+                      "Authorization": `Bearer ${token}`,
+                      "Content-Type": "application/json"
+                    }
+                  });
+                  
+                  if (response.ok) {
+                    const userData = await response.json();
+                    console.log("Auth test successful:", userData);
+                    toast.success("Authentication working!");
+                  } else {
+                    console.log("Auth test failed:", response.status, response.statusText);
+                    toast.error("Authentication failed: " + response.status);
+                  }
+                } catch (error) {
+                  console.error("Auth test error:", error);
+                  toast.error("Test error: " + error.message);
+                }
+              }}
+              className="btn-secondary flex items-center space-x-2">
+              <span>Test Auth</span>
             </button>
           </div>
         </div>
