@@ -16,7 +16,11 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { createTask, updateTask, fetchTaskById } from "../store/slices/taskSlice";
+import {
+  createTask,
+  updateTask,
+  fetchTaskById,
+} from "../store/slices/taskSlice";
 
 const TaskForm = () => {
   const navigate = useNavigate();
@@ -24,6 +28,13 @@ const TaskForm = () => {
   const { id } = useParams();
   const { user, isAuthenticated } = useSelector((state) => state.auth);
   const { loading, error } = useSelector((state) => state.tasks);
+
+  console.log(
+    "TaskForm render - isAuthenticated:",
+    isAuthenticated,
+    "user:",
+    user
+  );
 
   const [formData, setFormData] = useState({
     title: "",
@@ -48,57 +59,77 @@ const TaskForm = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  // Show loading if user data is not available yet
-  if (!isAuthenticated || !user) {
+  // Show loading only briefly while checking authentication
+  if (!isAuthenticated) {
     return (
       <div className="dashboard-container">
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
-            <p className="text-gray-400">
-              {!isAuthenticated ? "Redirecting to login..." : "Loading user data..."}
-            </p>
+            <p className="text-gray-400">Redirecting to login...</p>
           </div>
         </div>
       </div>
     );
   }
 
-  // Additional safety check for user data
-  if (!user.id && !user.email) {
-    return (
-      <div className="dashboard-container">
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center">
-            <div className="w-12 h-12 bg-red-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-              <AlertTriangle className="w-6 h-6 text-red-400" />
-            </div>
-            <p className="text-gray-400 mb-4">User data is incomplete</p>
-            <button
-              onClick={() => navigate("/login")}
-              className="btn-primary">
-              Go to Login
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  // If user is authenticated but user data is not available, proceed anyway
+  // The backend will handle the user ID from the JWT token
 
   // Priority options
   const priorityOptions = [
-    { value: "low", label: "Low", color: "text-blue-400", bgColor: "bg-blue-500/10" },
-    { value: "medium", label: "Medium", color: "text-yellow-400", bgColor: "bg-yellow-500/10" },
-    { value: "high", label: "High", color: "text-red-400", bgColor: "bg-red-500/10" },
-    { value: "urgent", label: "Urgent", color: "text-purple-400", bgColor: "bg-purple-500/10" },
+    {
+      value: "low",
+      label: "Low",
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      value: "medium",
+      label: "Medium",
+      color: "text-yellow-400",
+      bgColor: "bg-yellow-500/10",
+    },
+    {
+      value: "high",
+      label: "High",
+      color: "text-red-400",
+      bgColor: "bg-red-500/10",
+    },
+    {
+      value: "urgent",
+      label: "Urgent",
+      color: "text-purple-400",
+      bgColor: "bg-purple-500/10",
+    },
   ];
 
   // Status options
   const statusOptions = [
-    { value: "pending", label: "Pending", color: "text-yellow-400", bgColor: "bg-yellow-500/10" },
-    { value: "in_progress", label: "In Progress", color: "text-blue-400", bgColor: "bg-blue-500/10" },
-    { value: "completed", label: "Completed", color: "text-green-400", bgColor: "bg-green-500/10" },
-    { value: "cancelled", label: "Cancelled", color: "text-gray-400", bgColor: "bg-gray-500/10" },
+    {
+      value: "pending",
+      label: "Pending",
+      color: "text-yellow-400",
+      bgColor: "bg-yellow-500/10",
+    },
+    {
+      value: "in_progress",
+      label: "In Progress",
+      color: "text-blue-400",
+      bgColor: "bg-blue-500/10",
+    },
+    {
+      value: "completed",
+      label: "Completed",
+      color: "text-green-400",
+      bgColor: "bg-green-500/10",
+    },
+    {
+      value: "cancelled",
+      label: "Cancelled",
+      color: "text-gray-400",
+      bgColor: "bg-gray-500/10",
+    },
   ];
 
   // Category options
@@ -124,7 +155,9 @@ const TaskForm = () => {
             description: task.description || "",
             priority: task.priority || "medium",
             status: task.status || "pending",
-            dueDate: task.dueDate ? new Date(task.dueDate).toISOString().split('T')[0] : "",
+            dueDate: task.dueDate
+              ? new Date(task.dueDate).toISOString().split("T")[0]
+              : "",
             assignedTo: task.assignedTo || "",
             category: task.category || "",
             tags: task.tags || [],
@@ -140,66 +173,59 @@ const TaskForm = () => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleTagAdd = () => {
     if (newTag.trim() && !formData.tags.includes(newTag.trim())) {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        tags: [...prev.tags, newTag.trim()]
+        tags: [...prev.tags, newTag.trim()],
       }));
       setNewTag("");
     }
   };
 
   const handleTagRemove = (tagToRemove) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      tags: prev.tags.filter(tag => tag !== tagToRemove)
+      tags: prev.tags.filter((tag) => tag !== tagToRemove),
     }));
   };
 
   const handleFileUpload = (e) => {
     const files = Array.from(e.target.files);
-    const newAttachments = files.map(file => ({
+    const newAttachments = files.map((file) => ({
       name: file.name,
       size: file.size,
       type: file.type,
-      file: file
+      file: file,
     }));
-    
-    setFormData(prev => ({
+
+    setFormData((prev) => ({
       ...prev,
-      attachments: [...prev.attachments, ...newAttachments]
+      attachments: [...prev.attachments, ...newAttachments],
     }));
   };
 
   const handleFileRemove = (index) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      attachments: prev.attachments.filter((_, i) => i !== index)
+      attachments: prev.attachments.filter((_, i) => i !== index),
     }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     console.log("Form submission started");
     console.log("Form data:", formData);
-    console.log("User:", user);
-    
+
     if (!formData.title.trim()) {
       toast.error("Task title is required");
-      return;
-    }
-
-    if (!user) {
-      toast.error("User information not available. Please log in again.");
-      navigate("/login");
       return;
     }
 
@@ -208,7 +234,8 @@ const TaskForm = () => {
       const taskData = {
         title: formData.title,
         description: formData.description,
-        status: formData.status === "in-progress" ? "in_progress" : formData.status,
+        status:
+          formData.status === "in-progress" ? "in_progress" : formData.status,
         priority: formData.priority,
         due_date: formData.dueDate || null,
         assigned_to: formData.assignedTo || null,
@@ -226,7 +253,7 @@ const TaskForm = () => {
         console.log("Task creation result:", result);
         toast.success("Task created successfully!");
       }
-      
+
       console.log("Navigating to tasks page");
       navigate("/tasks");
     } catch (error) {
@@ -236,11 +263,11 @@ const TaskForm = () => {
   };
 
   const formatFileSize = (bytes) => {
-    if (bytes === 0) return '0 Bytes';
+    if (bytes === 0) return "0 Bytes";
     const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+    const sizes = ["Bytes", "KB", "MB", "GB"];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
   return (
@@ -262,10 +289,9 @@ const TaskForm = () => {
             <div className="header-text">
               <h1>{isEditing ? "Edit Task" : "Create Task"}</h1>
               <p>
-                {isEditing 
-                  ? "Update task details and information" 
-                  : "Create a new task with details and attachments"
-                }
+                {isEditing
+                  ? "Update task details and information"
+                  : "Create a new task with details and attachments"}
               </p>
             </div>
           </div>
@@ -281,7 +307,37 @@ const TaskForm = () => {
               disabled={loading}
               className="btn-large flex items-center space-x-2">
               <Save className="w-5 h-5" />
-              <span>{loading ? "Saving..." : (isEditing ? "Update Task" : "Create Task")}</span>
+              <span>
+                {loading
+                  ? "Saving..."
+                  : isEditing
+                  ? "Update Task"
+                  : "Create Task"}
+              </span>
+            </button>
+            <button
+              onClick={async () => {
+                try {
+                  console.log("Testing API directly...");
+                  const testData = {
+                    title: "Test Task",
+                    description: "This is a test task",
+                    status: "pending",
+                    priority: "medium",
+                    due_date: null,
+                    assigned_to: null,
+                  };
+                  console.log("Test data:", testData);
+                  const result = await dispatch(createTask(testData)).unwrap();
+                  console.log("Test result:", result);
+                  toast.success("Test task created!");
+                } catch (error) {
+                  console.error("Test error:", error);
+                  toast.error("Test failed: " + error.message);
+                }
+              }}
+              className="btn-secondary flex items-center space-x-2">
+              <span>Test API</span>
             </button>
           </div>
         </div>
@@ -295,7 +351,7 @@ const TaskForm = () => {
                 <FileText className="w-5 h-5 text-green-400" />
                 <span>Basic Information</span>
               </h2>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Title */}
                 <div className="lg:col-span-2">
@@ -339,8 +395,10 @@ const TaskForm = () => {
                     onChange={handleInputChange}
                     className="input-field w-full">
                     <option value="">Select category</option>
-                    {categoryOptions.map(category => (
-                      <option key={category} value={category}>{category}</option>
+                    {categoryOptions.map((category) => (
+                      <option key={category} value={category}>
+                        {category}
+                      </option>
                     ))}
                   </select>
                 </div>
@@ -368,7 +426,7 @@ const TaskForm = () => {
                 <Clock className="w-5 h-5 text-blue-400" />
                 <span>Task Details</span>
               </h2>
-              
+
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {/* Priority */}
                 <div>
@@ -380,7 +438,7 @@ const TaskForm = () => {
                     value={formData.priority}
                     onChange={handleInputChange}
                     className="input-field w-full">
-                    {priorityOptions.map(option => (
+                    {priorityOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
@@ -398,7 +456,7 @@ const TaskForm = () => {
                     value={formData.status}
                     onChange={handleInputChange}
                     className="input-field w-full">
-                    {statusOptions.map(option => (
+                    {statusOptions.map((option) => (
                       <option key={option.value} value={option.value}>
                         {option.label}
                       </option>
@@ -428,14 +486,16 @@ const TaskForm = () => {
                 <Tag className="w-5 h-5 text-purple-400" />
                 <span>Tags</span>
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="flex space-x-2">
                   <input
                     type="text"
                     value={newTag}
                     onChange={(e) => setNewTag(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleTagAdd())}
+                    onKeyPress={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), handleTagAdd())
+                    }
                     className="input-field flex-1"
                     placeholder="Add a tag..."
                   />
@@ -447,7 +507,7 @@ const TaskForm = () => {
                     <span>Add</span>
                   </button>
                 </div>
-                
+
                 {formData.tags.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {formData.tags.map((tag, index) => (
@@ -474,11 +534,13 @@ const TaskForm = () => {
                 <Upload className="w-5 h-5 text-orange-400" />
                 <span>Attachments</span>
               </h2>
-              
+
               <div className="space-y-4">
                 <div className="border-2 border-dashed border-gray-600 rounded-lg p-6 text-center">
                   <Upload className="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                  <p className="text-gray-400 mb-2">Drop files here or click to upload</p>
+                  <p className="text-gray-400 mb-2">
+                    Drop files here or click to upload
+                  </p>
                   <input
                     type="file"
                     multiple
@@ -492,10 +554,12 @@ const TaskForm = () => {
                     Choose Files
                   </label>
                 </div>
-                
+
                 {formData.attachments.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-sm font-medium text-gray-300">Uploaded Files:</h3>
+                    <h3 className="text-sm font-medium text-gray-300">
+                      Uploaded Files:
+                    </h3>
                     {formData.attachments.map((file, index) => (
                       <div
                         key={index}
@@ -504,7 +568,9 @@ const TaskForm = () => {
                           <FileText className="w-5 h-5 text-gray-400" />
                           <div>
                             <p className="text-sm text-white">{file.name}</p>
-                            <p className="text-xs text-gray-400">{formatFileSize(file.size)}</p>
+                            <p className="text-xs text-gray-400">
+                              {formatFileSize(file.size)}
+                            </p>
                           </div>
                         </div>
                         <button
